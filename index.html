@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎄 Новогодняя викторина 🎄</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Comic Sans MS', system-ui, sans-serif;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #1a3a5c 0%, #0a1929 45%, #050d1a 100%);
+    color: #fff;
+    overflow-x: hidden;
+    padding: 20px;
+    position: relative;
+  }
+
+  #forest { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .bg-tree { position: absolute; user-select: none; filter: drop-shadow(0 0 8px rgba(120, 200, 140, 0.25)); line-height: 1; }
+  .bottom-tree { bottom: -10px; animation: treeSway 7s ease-in-out infinite; }
+  @keyframes treeSway { 0%,100%{transform:rotate(-1.5deg);} 50%{transform:rotate(1.5deg);} }
+  .scattered-tree { animation: treeFloat 9s ease-in-out infinite; }
+  @keyframes treeFloat { 0%,100%{transform:translateY(0) rotate(-1deg);} 50%{transform:translateY(-10px) rotate(1deg);} }
+
+  #snow { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+  .snowflake {
+    position: absolute; top: -40px; color: #fff; user-select: none;
+    text-shadow: 0 0 6px rgba(180, 220, 255, 0.9);
+    animation: fall linear infinite;
+  }
+  @keyframes fall { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(110vh) rotate(360deg);} }
+  .snowflake.blurred { filter: blur(2px); opacity: 0.5 !important; }
+
+  .decor {
+    position: fixed; font-size: 44px;
+    filter: drop-shadow(0 0 12px rgba(255, 215, 100, 0.55));
+    animation: floaty 4s ease-in-out infinite;
+    z-index: 2; user-select: none; pointer-events: none;
+  }
+  @keyframes floaty { 0%,100%{transform:translateY(0) rotate(-4deg);} 50%{transform:translateY(-12px) rotate(4deg);} }
+  .decor-tree-1  { top: 20px;    left: 20px;    animation-delay: 0s;    font-size: 64px; }
+  .decor-tree-2  { bottom: 20px; right: 20px;   animation-delay: 0.5s;  font-size: 64px; }
+  .decor-gift-1  { top: 20px;    right: 20px;   animation-delay: 1s;    font-size: 48px; }
+  .decor-gift-2  { bottom: 20px; left: 20px;    animation-delay: 1.5s;  font-size: 48px; }
+  .decor-bell    { top: 40px;    right: 100px;  animation-delay: 0.8s;  font-size: 40px; }
+  .decor-star-1  { top: 120px;   left: 100px;   animation-delay: 1.2s;  font-size: 32px; }
+  .decor-star-2  { bottom: 120px; right: 100px; animation-delay: 0.3s;  font-size: 32px; }
+  @media (max-width: 720px) {
+    .decor { font-size: 28px; }
+    .decor-tree-1, .decor-tree-2 { font-size: 40px; }
+  }
+
+  main { position: relative; z-index: 3; max-width: 820px; margin: 30px auto; }
+
+  .view { display: none; animation: fadeIn 0.5s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+  .card {
+    background: linear-gradient(145deg, rgba(30, 60, 100, 0.88), rgba(15, 35, 60, 0.92));
+    border: 2px solid rgba(255, 215, 100, 0.35);
+    border-radius: 24px;
+    padding: 36px 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 40px rgba(100, 180, 255, 0.06),
+                0 0 30px rgba(255, 215, 100, 0.08);
+    text-align: center;
+    backdrop-filter: blur(6px);
+  }
+
+  h1 {
+    font-size: 32px; margin-bottom: 12px;
+    background: linear-gradient(180deg, #fff8dc, #ffd76e, #f5a623);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 24px rgba(255, 215, 100, 0.4);
+    letter-spacing: 0.5px;
+  }
+  h2 { font-size: 22px; margin-bottom: 20px; color: #ffe9b0; }
+  .subtitle { font-size: 17px; color: #a9c5e3; margin-bottom: 28px; }
+
+  .counter {
+    background: linear-gradient(145deg, rgba(255, 215, 100, 0.14), rgba(255, 140, 100, 0.05));
+    border: 2px dashed rgba(255, 215, 100, 0.4);
+    border-radius: 16px;
+    padding: 16px 20px; margin-bottom: 24px;
+    font-size: 15px; color: #ffe9b0;
+  }
+  .counter strong { color: #ffd76e; font-size: 22px; }
+  .counter .bar { height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.08); overflow: hidden; margin-top: 10px; }
+  .counter .bar-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #4fc3f7, #ffd76e, #ff8a65);
+    border-radius: 5px; transition: width 0.5s ease;
+    box-shadow: 0 0 12px rgba(255, 215, 100, 0.6);
+  }
+
+  .players { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 8px; }
+  @media (min-width: 540px) { .players { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 820px) { .players { grid-template-columns: repeat(4, 1fr); } }
+
+  .player-btn {
+    padding: 22px 12px; font-size: 17px; font-weight: 700; color: #fff;
+    background: linear-gradient(145deg, #d32f2f, #a01818);
+    border: 2px solid #ffd76e; border-radius: 16px; cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    font-family: inherit;
+    box-shadow: 0 8px 20px rgba(211, 47, 47, 0.35);
+    position: relative;
+  }
+  .player-btn:hover:not(.locked) {
+    transform: translateY(-4px) scale(1.03);
+    background: linear-gradient(145deg, #e53935, #b71c1c);
+    box-shadow: 0 14px 32px rgba(211, 47, 47, 0.5), 0 0 20px rgba(255, 215, 100, 0.4);
+  }
+  .player-btn .emoji { display: block; font-size: 32px; margin-bottom: 8px; }
+  .player-btn .played { display: block; font-size: 12px; color: #ffd76e; margin-top: 6px; font-weight: 600; }
+  .player-btn.locked {
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #4a5568, #2d3748);
+    border-color: #718096;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+    opacity: 0.85;
+  }
+  .player-btn.locked .emoji { filter: grayscale(0.7); }
+  .player-btn.locked .played { color: #a0aec0; }
+
+  .loading {
+    padding: 40px 20px;
+    color: #a9c5e3;
+    font-size: 16px;
+  }
+  .loading .spinner {
+    display: inline-block;
+    font-size: 32px;
+    animation: spin 1.2s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 15px; color: #cfe0f3; flex-wrap: wrap; gap: 8px; }
+  .quiz-header strong { color: #ffd76e; font-size: 18px; }
+
+  .quiz-progress { margin-bottom: 22px; }
+  #quiz-progress-text { font-size: 13px; color: #a9c5e3; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; }
+  #progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #4fc3f7, #ffd76e, #ff8a65);
+    border-radius: 4px; transition: width 0.4s ease;
+    box-shadow: 0 0 12px rgba(255, 215, 100, 0.6);
+  }
+
+  .question-card { margin-top: 8px; position: relative; }
+  .question-emoji { font-size: 68px; margin-bottom: 12px; }
+  #question-text { font-size: 21px; color: #fff; margin-bottom: 28px; line-height: 1.35; min-height: 60px; }
+
+  .answers { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 620px) { .answers { grid-template-columns: 1fr 1fr; } }
+
+  .answer-btn {
+    padding: 16px 18px; font-size: 15px; font-weight: 600; color: #e8f1fb;
+    background: rgba(45, 90, 140, 0.55);
+    border: 2px solid rgba(120, 180, 240, 0.35);
+    border-radius: 14px; cursor: pointer;
+    transition: all 0.18s; font-family: inherit;
+    text-align: left; line-height: 1.35;
+  }
+  .answer-btn:hover:not(:disabled) {
+    background: rgba(70, 130, 200, 0.7);
+    border-color: #ffd76e; transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  }
+  .answer-btn:disabled { cursor: default; }
+  .answer-btn.correct {
+    background: linear-gradient(145deg, #2e7d32, #1b5e20);
+    border-color: #81c784; box-shadow: 0 0 24px rgba(129, 199, 132, 0.7);
+    transform: scale(1.02); color: #fff;
+  }
+  .answer-btn.wrong { background: linear-gradient(145deg, #b71c1c, #7f0000); border-color: #ef9a9a; color: #ffe0e0; }
+  .answer-btn.wrong::after, .answer-btn.correct::after { float: right; font-size: 22px; margin-left: 10px; }
+  .answer-btn.correct::after { content: '✓'; }
+  .answer-btn.wrong::after { content: '✗'; }
+
+  /* ---------- Бонусный подарок — ВЗРЫВНОЙ ---------- */
+  .bonus-wrapper {
+    position: absolute;
+    top: -28px;
+    right: -20px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .bonus-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 140px; height: 140px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle,
+                rgba(255, 215, 100, 0.55) 0%,
+                rgba(255, 140, 50, 0.25) 35%,
+                rgba(255, 100, 50, 0) 70%);
+    border-radius: 50%;
+    animation: haloPulse 1.4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+  @keyframes haloPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
+    50%      { transform: translate(-50%, -50%) scale(1.35); opacity: 1;   }
+  }
+
+  .bonus-gift {
+    position: relative;
+    font-size: 56px;
+    cursor: pointer;
+    pointer-events: auto;
+    background: none;
+    border: none;
+    padding: 6px;
+    animation: giftExplode 1.2s ease-in-out infinite;
+    filter:
+      drop-shadow(0 0 12px rgba(255, 215, 100, 1))
+      drop-shadow(0 0 28px rgba(255, 140, 40, 0.85))
+      drop-shadow(0 0 48px rgba(255, 80, 30, 0.55));
+    transition: transform 0.15s;
+    transform-origin: center;
+  }
+  .bonus-gift:hover {
+    transform: scale(1.35) rotate(15deg);
+    filter:
+      drop-shadow(0 0 20px rgba(255, 215, 100, 1))
+      drop-shadow(0 0 40px rgba(255, 140, 40, 1))
+      drop-shadow(0 0 70px rgba(255, 80, 30, 0.9));
+  }
+  @keyframes giftExplode {
+    0%   { transform: scale(1)    rotate(-10deg); }
+    25%  { transform: scale(1.25) rotate(8deg);   }
+    50%  { transform: scale(1.15) rotate(-8deg);  }
+    75%  { transform: scale(1.3)  rotate(10deg);  }
+    100% { transform: scale(1)    rotate(-10deg); }
+  }
+
+  .bonus-spark {
+    position: absolute;
+    font-size: 22px;
+    pointer-events: none;
+    text-shadow: 0 0 12px rgba(255, 240, 150, 1);
+  }
+  .bonus-spark-1 { top: -12px; left: -10px;    animation: sparkSpin 1.5s linear infinite; }
+  .bonus-spark-2 { top: -8px;  right: -8px;    animation: sparkSpin 1.8s linear infinite reverse; }
+  .bonus-spark-3 { bottom: -12px; left: -6px;  animation: sparkSpin 2s linear infinite 0.4s; }
+  .bonus-spark-4 { bottom: -10px; right: -12px; animation: sparkSpin 1.6s linear infinite 0.7s; }
+  @keyframes sparkSpin {
+    0%   { transform: scale(0.3) rotate(0deg);   opacity: 0; }
+    50%  { transform: scale(1.4) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0.3) rotate(360deg); opacity: 0; }
+  }
+
+  .bonus-label {
+    margin-top: 4px;
+    padding: 4px 12px;
+    background: linear-gradient(145deg, #ffd76e, #ff8a3d);
+    color: #4a1a00;
+    font-size: 14px;
+    font-weight: 900;
+    border-radius: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 16px rgba(255, 215, 100, 1), 0 4px 14px rgba(0, 0, 0, 0.4);
+    animation: labelBounce 1s ease-in-out infinite;
+    white-space: nowrap;
+  }
+  @keyframes labelBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-3px) scale(1.08); }
+  }
+
+  .bonus-badge {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 14px; height: 14px;
+    background: #e53e3e;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(229, 62, 62, 1);
+    animation: badgeBlink 0.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+  @keyframes badgeBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.75); }
+  }
+
+  .result-emoji { font-size: 92px; margin-bottom: 8px; }
+  .result-score { font-size: 20px; color: #cfe0f3; margin: 16px 0 24px; }
+  .result-score strong { color: #ffd76e; font-size: 30px; }
+  .result-message {
+    font-size: 18px; color: #ffe9b0; line-height: 1.5;
+    margin-bottom: 30px; padding: 20px;
+    background: rgba(255, 215, 100, 0.08);
+    border-radius: 14px;
+    border: 1px dashed rgba(255, 215, 100, 0.3);
+  }
+  .result-hint { font-size: 14px; color: #a9c5e3; margin-bottom: 20px; font-style: italic; }
+  .result-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .btn { padding: 14px 28px; font-size: 16px; font-weight: 700; border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: all 0.18s; font-family: inherit; }
+  .btn-ok { background: linear-gradient(145deg, #2e7d32, #1b5e20); color: #fff; border-color: #81c784; box-shadow: 0 6px 18px rgba(46, 125, 50, 0.4); }
+  .btn-ok:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(46, 125, 50, 0.6); }
+  .btn-alt { background: rgba(255, 215, 100, 0.15); color: #ffd76e; border-color: #ffd76e; }
+  .btn-alt:hover { background: rgba(255, 215, 100, 0.3); transform: translateY(-2px); }
+  .btn-cancel { background: rgba(255, 255, 255, 0.08); color: #a9c5e3; border-color: rgba(255, 255, 255, 0.15); }
+  .btn-cancel:hover { background: rgba(255, 255, 255, 0.15); }
+
+  .modal { display: none; position: fixed; inset: 0; background: rgba(5, 13, 26, 0.85); backdrop-filter: blur(6px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+  .modal.open { display: flex; }
+  .modal-content {
+    background: linear-gradient(145deg, #1e3c64, #0f2340);
+    border: 2px solid #ffd76e; border-radius: 20px;
+    padding: 32px 28px; max-width: 400px; width: 100%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 215, 100, 0.3);
+    animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn { from{transform:scale(0.85);opacity:0;} to{transform:scale(1);opacity:1;} }
+  .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #ffd76e; }
+  .modal-content input {
+    width: 100%; padding: 14px 18px; font-size: 20px;
+    text-align: center; letter-spacing: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(120, 180, 240, 0.4);
+    border-radius: 12px; color: #fff; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+  .modal-content input:focus { border-color: #ffd76e; box-shadow: 0 0 0 4px rgba(255, 215, 100, 0.18); }
+  .modal-buttons { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+  .modal-buttons .btn { flex: 1; padding: 12px 20px; }
+  .error { color: #ff8a80; font-size: 14px; margin-top: 12px; min-height: 18px; }
+
+  .final-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 215, 100, 0.15);
+    border-radius: 14px; font-size: 17px;
+    transition: all 0.2s;
+  }
+  .final-row.winner {
+    background: linear-gradient(90deg, rgba(255, 215, 100, 0.2), rgba(255, 215, 100, 0.06));
+    border-color: #ffd76e; box-shadow: 0 0 24px rgba(255, 215, 100, 0.35);
+  }
+  .final-row .medal { font-size: 28px; width: 34px; text-align: center; }
+  .final-row .name { flex: 1; text-align: left; color: #fff; font-weight: 700; }
+  .final-row .score { color: #ffd76e; font-weight: 700; font-size: 19px; }
+  .final-row .crown { font-size: 22px; }
+
+  .final-message {
+    font-size: 17px; color: #ffe9b0; line-height: 1.6;
+    margin: 30px 0; padding: 24px;
+    background: linear-gradient(145deg, rgba(255, 215, 100, 0.1), rgba(255, 140, 100, 0.06));
+    border-radius: 16px; border: 2px dashed rgba(255, 215, 100, 0.35);
+  }
+  .locked-message {
+    padding: 16px 20px;
+    background: rgba(120, 180, 240, 0.1);
+    border: 2px dashed rgba(120, 180, 240, 0.35);
+    border-radius: 14px; color: #a9c5e3;
+    font-size: 15px; margin-bottom: 20px;
+  }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(145deg, #1e3c64, #0f2340);
+    border: 2px solid #ffd76e; border-radius: 14px;
+    padding: 14px 24px; color: #ffe9b0;
+    font-size: 15px; font-weight: 600;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 215, 100, 0.35);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 200; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="forest"></div>
+<div id="snow"></div>
+
+<div class="decor decor-tree-1">🎄</div>
+<div class="decor decor-tree-2">🎄</div>
+<div class="decor decor-gift-1">🎁</div>
+<div class="decor decor-gift-2">🎁</div>
+<div class="decor decor-bell">🔔</div>
+<div class="decor decor-star-1">⭐</div>
+<div class="decor decor-star-2">✨</div>
+
+<main>
+
+  <section id="view-login" class="view active">
+    <div class="card">
+      <h1>🎄 Семейная новогодняя викторина 🎄</h1>
+      <p class="subtitle">Выбери себя и введи свой новогодний пароль 🎁</p>
+
+      <div class="counter">
+        🎯 Общий счёт семьи: <strong id="total-score">0</strong> из <strong>67</strong>
+        <div class="bar"><div class="bar-fill" id="total-bar"></div></div>
+        <div style="margin-top:8px; font-size:13px;">
+          <span id="counter-hint">Наберите 67 очков — откроется общее поздравление! 🎅</span>
+        </div>
+      </div>
+
+      <div id="players-container">
+        <div class="loading">
+          <div class="spinner">❄️</div>
+          <div>Загружаем результаты семьи…</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn-alt" id="btn-go-final" style="display:none;">
+          🏆 Итоги
+        </button>
+      </div>
+
+      <div style="margin-top:16px; font-size:12px; color:#718096;">
+        🔒 У каждого игрока только одна попытка!
+      </div>
+    </div>
+  </section>
+
+  <section id="view-quiz" class="view">
+    <div class="card">
+      <div class="quiz-header">
+        <div>🎅 Играет: <strong id="quiz-player"></strong></div>
+        <div>⭐ Счёт: <strong id="quiz-score">0</strong></div>
+      </div>
+
+      <div class="quiz-progress">
+        <div id="quiz-progress-text">Вопрос 1 из 10</div>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+      </div>
+
+      <div class="question-card" id="question-card">
+        <div class="bonus-wrapper" id="bonus-wrapper" style="display:none;">
+          <div class="bonus-spark bonus-spark-1">✨</div>
+          <div class="bonus-spark bonus-spark-2">⭐</div>
+          <div class="bonus-spark bonus-spark-3">✨</div>
+          <div class="bonus-spark bonus-spark-4">🌟</div>
+          <button class="bonus-gift" id="bonus-gift" title="Нажми меня!">🎁</button>
+          <div class="bonus-badge"></div>
+          <div class="bonus-label">БОНУС!</div>
+        </div>
+        <div class="question-emoji" id="question-emoji">❄️</div>
+        <h2 id="question-text"></h2>
+        <div class="answers" id="answers"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-result" class="view">
+    <div class="card">
+      <div class="result-emoji" id="result-emoji">🎉</div>
+      <h1 id="result-title">Молодец!</h1>
+      <div class="result-score">
+        Твой результат: <strong id="result-score-val">0</strong> из <strong id="result-score-max">10</strong>
+      </div>
+      <div class="result-message" id="result-message"></div>
+      <div class="result-hint">
+        🔒 Попытка использована. Твой результат уже в турнирной таблице!
+      </div>
+      <div class="result-buttons">
+        <button class="btn btn-alt" id="btn-other">👥 Играет следующий</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-final" class="view">
+    <div class="card">
+      <h1>🏆 Итоги семейной викторины 🏆</h1>
+
+      <div class="counter" style="margin-top:20px;">
+        🎯 Общий счёт семьи: <strong id="final-total">0</strong> из <strong>67</strong>
+        <div class="bar"><div class="bar-fill" id="final-bar"></div></div>
+        <div style="margin-top:8px; font-size:13px;" id="final-hint"></div>
+      </div>
+
+      <div id="final-results" style="margin-top: 20px;"></div>
+
+      <div id="final-congrats" style="display:none;">
+        <div class="final-message">
+          🎄 <strong>С Новым годом и Рождеством, дорогие!</strong> 🎄<br><br>
+          Вы все вместе набрали <strong>67 очков</strong> — значит, год будет счастливым!<br>
+          Пусть в новом году будет много тепла, смеха, мандаринов, снега за окном
+          и уютных вечеров вместе.<br>
+          Обнимаем крепко! ❤️🎁✨
+        </div>
+      </div>
+
+      <div id="final-locked" class="locked-message">
+        🔒 Поздравление откроется, когда вся семья вместе наберёт <strong>67 очков</strong>.
+      </div>
+
+      <div style="margin-top: 24px;">
+        <button class="btn btn-ok" id="btn-back-to-login">⬅️ Вернуться к входу</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal" id="modal-password">
+  <div class="modal-content">
+    <h2 id="modal-title">Пароль</h2>
+    <input type="password" id="password-input" placeholder="•••" autocomplete="off">
+    <div class="modal-buttons">
+      <button class="btn btn-cancel" id="btn-cancel">Отмена</button>
+      <button class="btn btn-ok" id="btn-ok">Войти</button>
+    </div>
+    <div class="error" id="password-error"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal-bonus">
+  <div class="modal-content" style="max-width: 480px;">
+    <h2>🎁 Бонусный вопрос!</h2>
+    <div class="question-emoji" style="font-size:52px;">🎅</div>
+    <div id="bonus-question-text" style="font-size:18px; color:#fff; margin-bottom:20px; line-height:1.4;"></div>
+    <div class="answers" id="bonus-answers"></div>
+    <div class="error" id="bonus-error" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   ИГРОКИ И ПАРОЛИ
+   ========================================================= */
+
+const PLAYERS = {
+  'Оля':      { password: 'snowflake',  emoji: '🌸' },
+  'Оксана':   { password: 'purrmew',    emoji: '🐱' },
+  'Кристина': { password: 'violin',     emoji: '🎻' },
+  'Тамара':   { password: 'kolyada',    emoji: '🕯️' },
+  'Вика':     { password: 'snowman',    emoji: '⛄' },
+  'Настя':    { password: 'tinsel',     emoji: '🌟' },
+  'Руслан':   { password: 'blizzard',   emoji: '🎖️' },
+  'Юля':      { password: 'carol',      emoji: '🔔' },
+  'Андрей':   { password: 'icefish',    emoji: '🎣' }
+};
+
+const TARGET_SCORE = 67;
+
+/* =========================================================
+   ВОПРОСЫ ПО ТЕМАМ
+   ========================================================= */
+
+const QUESTIONS = {
+  'Оля': [
+    { emoji: '🎬', q: 'В каком сериале герои празднуют Рождество в кофейне «Central Perk»?',
+      answers: ['«Друзья»', '«Как я встретил вашу маму»', '«Теория Большого взрыва»', '«Офис»'], correct: 0 },
+    { emoji: '🐉', q: 'В «Игре престолов» зима приходит с севера. Как называется лютоволк Джона Сноу?',
+      answers: ['Лето', 'Призрак', 'Серый Ветер', 'Мороз'], correct: 1 },
+    { emoji: '🎄', q: 'В «Очень странных делах» (Stranger Things) какие праздники особенно любит Дастин?',
+      answers: ['Хэллоуин и Рождество', 'Только Пасху', 'День независимости', 'Никакие'], correct: 0 },
+    { emoji: '🕵️', q: 'В сериале «Шерлок» есть эпизод про Рождество. Что Шерлок дарит Mrs. Hudson?',
+      answers: ['Шарф', 'Пустой конверт', 'Свечу', 'Книгу'], correct: 1 },
+    { emoji: '☕', q: 'В «Гилмор Гёрлз» мама с дочкой обожают зимние вечера с...',
+      answers: ['Пиццей и фильмами', 'Только чтением', 'Спортом', 'Уборкой'], correct: 0 },
+    { emoji: '👑', q: 'В «Короне» где традиционно проходит рождественский праздник королевской семьи?',
+      answers: ['Букингемский дворец', 'Сандрингем', 'Виндзор', 'Балморал'], correct: 1 },
+    { emoji: '🎁', q: 'В «Как я встретил вашу маму» каждый год есть традиция, связанная с...',
+      answers: ['Пончиками', 'Свитером', 'Ёлкой', 'Кексом'], correct: 0 },
+    { emoji: '🦑', q: 'В «Игре в кальмара» второй сезон вышел именно...',
+      answers: ['26 декабря 2024', '1 января 2025', '31 декабря 2024', '7 января 2025'], correct: 0 },
+    { emoji: '🧙', q: 'В «Друзьях» Фиби поёт рождественские песни. Про какого зверя её самая известная песня?',
+      answers: ['Про кота', 'Про оленя', 'Про бегемота', 'Про вонючку'], correct: 3 },
+    { emoji: '❄️', q: 'В «Офисе» (US) Майкл Скотт играет роль... в рождественском эпизоде?',
+      answers: ['Снегурочки', 'Санта-Клауса', 'Эльфа', 'Джек-Фроста'], correct: 1 }
+  ],
+
+  'Оксана': [
+    { emoji: '🐱', q: 'Почему коты так любят спать под ёлкой?',
+      answers: ['Из-за гирлянды — тепло', 'Их привлекает запах хвои', 'Там темно', 'Просто из вредности'], correct: 0 },
+    { emoji: '🎄', q: 'Чем опасны дождик и мишура для кошек?',
+      answers: ['Ничем, они безопасны', 'Могут проглотить и получить кишечную непроходимость', 'Только аллергия', 'Пугают их'], correct: 1 },
+    { emoji: '🧶', q: 'Что чаще всего сбивает ёлку дома?',
+      answers: ['Землетрясение', 'Кот', 'Сквозняк', 'Робот-пылесос'], correct: 1 },
+    { emoji: '🎅', q: 'В какой стране есть легенда о «рождественском коте» Йоулукотти?',
+      answers: ['Исландия', 'Норвегия', 'Финляндия', 'Швеция'], correct: 0 },
+    { emoji: '🐈', q: 'Йоулукотти, по легенде, съедал тех, кто...',
+      answers: ['Не умылся', 'Не получил новую одежду к Рождеству', 'Громко пел', 'Поздно ложился'], correct: 1 },
+    { emoji: '🎁', q: 'Почему коты обожают коробки под ёлкой?',
+      answers: ['Их манит шуршание', 'Они уютные и закрытые', 'Там спрятаны сосиски', 'Там играет музыка'], correct: 1 },
+    { emoji: '❄️', q: 'Кот впадает в зимнюю спячку?',
+      answers: ['Да, все коты', 'Только рыжие', 'Нет, коты не впадают в спячку', 'Только котята'], correct: 2 },
+    { emoji: '🍊', q: 'Опасно ли коту есть мандарины?',
+      answers: ['Полезно', 'Можно немного', 'Цитрусовые токсичны для кошек', 'Обожают их'], correct: 2 },
+    { emoji: '🐾', q: 'Что означает медленное моргание кота?',
+      answers: ['Устал', 'Проявление доверия и любви', 'Готовится укусить', 'Заболел'], correct: 1 },
+    { emoji: '🌟', q: 'Какая порода чаще всего любит «помогать» украшать ёлку?',
+      answers: ['Мейн-кун', 'Бенгальская (очень любопытная)', 'Британская', 'Персидская'], correct: 1 }
+  ],
+
+  'Кристина': [
+    { emoji: '🐱', q: 'У какой знаменитой «кошки-скрипачки» из мультфильмов Disney есть свой скрипичный номер?',
+      answers: ['У Динь-Динь', 'У Кота в сапогах', 'У кошки Мари из «Аристократов»', 'У Тома'], correct: 2 },
+    { emoji: '🎻', q: 'Какой композитор написал «Щелкунчика»?',
+      answers: ['Моцарт', 'Чайковский', 'Бах', 'Штраус'], correct: 1 },
+    { emoji: '✨', q: 'Как называется красная помада, без которой не обходится новогодний образ?',
+      answers: ['Nude', 'Классический красный', 'Прозрачный блеск', 'Чёрный'], correct: 1 },
+    { emoji: '🎄', q: 'Что обязательно добавляют в новогодний макияж для волшебного эффекта?',
+      answers: ['Хайлайтер', 'Стрелки', 'Стразы/блёстки', 'Тональный крем'], correct: 2 },
+    { emoji: '🧴', q: 'Зимой коже особенно нужен...',
+      answers: ['Пилинг', 'Увлажняющий крем', 'Тоник с кислотой', 'Скраб'], correct: 1 },
+    { emoji: '🎶', q: 'Какой струнный инструмент часто звучит в рождественских гимнах вместе со скрипкой?',
+      answers: ['Балалайка', 'Альт и виолончель', 'Гитара', 'Арфа'], correct: 1 },
+    { emoji: '🦢', q: 'В «Лебедином озере» Чайковского главная героиня превращается в...',
+      answers: ['Кошку', 'Лебедя', 'Фею', 'Русалку'], correct: 1 },
+    { emoji: '🐈‍⬛', q: 'Какой цвет шерсти кота особенно фотогеничен на фоне снега?',
+      answers: ['Только белый', 'Чёрный и рыжий', 'Только серый', 'Неважно'], correct: 1 },
+    { emoji: '🌙', q: 'Какой аромат чаще всего ассоциируется с Рождеством?',
+      answers: ['Морская свежесть', 'Апельсин, корица, гвоздика', 'Лаванда', 'Мята'], correct: 1 },
+    { emoji: '🎻', q: 'Сколько струн у классической скрипки?',
+      answers: ['4', '5', '6', '3'], correct: 0 }
+  ],
+
+  'Тамара': [
+    { emoji: '⛪', q: 'Какого числа православное Рождество в России?',
+      answers: ['25 декабря', '7 января', '1 января', '19 января'], correct: 1 },
+    { emoji: '🍲', q: 'Как называется традиционное блюдо из варёной пшеницы с мёдом и маком?',
+      answers: ['Кутья', 'Кулич', 'Блины', 'Каша'], correct: 0 },
+    { emoji: '🌟', q: 'Что символизирует Вифлеемская звезда?',
+      answers: ['Рождение Христа', 'Начало зимы', 'Приход весны', 'Конец поста'], correct: 0 },
+    { emoji: '🕯️', q: 'Что принято ставить на стол в Сочельник?',
+      answers: ['Свечу', '12 блюд', 'Торт', 'Шампанское'], correct: 0 },
+    { emoji: '🎶', q: 'Как называются праздничные песни, которые поют в святочные дни?',
+      answers: ['Колядки', 'Частушки', 'Оды', 'Сонеты'], correct: 0 },
+    { emoji: '🥣', q: 'Сколько блюд традиционно должно быть на столе в Сочельник?',
+      answers: ['3', '7', '12', '20'], correct: 2 },
+    { emoji: '🕊️', q: 'Сколько дней длится Рождественский пост?',
+      answers: ['7 дней', '14 дней', '40 дней', '50 дней'], correct: 2 },
+    { emoji: '🙏', q: 'Какое событие празднуют в Крещение Господне?',
+      answers: ['Крещение Иисуса в Иордане', 'Рождение Христа', 'Вход в Иерусалим', 'Преображение'], correct: 0 },
+    { emoji: '❄️', q: 'Как называется ночь с 6 на 7 января?',
+      answers: ['Рождественская', 'Святая', 'Сочельник', 'Крещенская'], correct: 2 },
+    { emoji: '🎄', q: 'Что принято дарить на Рождество в православной традиции?',
+      answers: ['Только деньги', 'Подарки с молитвой и добрыми пожеланиями', 'Ничего', 'Только сладости'], correct: 1 }
+  ],
+
+  'Вика': [
+    { emoji: '⛄', q: 'Как звали снеговика-почтальона из Простоквашино?',
+      answers: ['Снеговик', 'Снеговичок', 'Снежный', 'Морозко'], correct: 0 },
+    { emoji: '🐻', q: 'Кто поёт песню «Кабы не было зимы» в «Простоквашино»?',
+      answers: ['Мама', 'Пёс Шарик', 'Кот Матроскин', 'Дядя Фёдор'], correct: 1 },
+    { emoji: '🎅', q: 'Как зовут внучку Деда Мороза?',
+      answers: ['Снегурочка', 'Метелица', 'Зимушка', 'Снежинка'], correct: 0 },
+    { emoji: '🦌', q: 'Сколько оленей в упряжке Санта-Клауса в классической песне?',
+      answers: ['6', '8', '10', '4'], correct: 1 },
+    { emoji: '🐰', q: 'В каком мультфильме кролик помогает Санте?',
+      answers: ['«Ледниковый период»', '«История игрушек»', '«Секретная служба Санты»', '«Мадагаскар»'], correct: 2 },
+    { emoji: '🎁', q: 'Как звали маленького оленёнка с красным носом?',
+      answers: ['Рудольф', 'Олешка', 'Бэмби', 'Снежок'], correct: 0 },
+    { emoji: '🐧', q: 'Какие мультяшные птицы обитают на Южном полюсе и спасают Новый год?',
+      answers: ['Пингвины', 'Совы', 'Чайки', 'Вороны'], correct: 0 },
+    { emoji: '❄️', q: 'Что говорит Снежная Королева, когда замораживает Кая?',
+      answers: ['«Вечность»', '«Зима»', '«Холод»', '«Лёд»'], correct: 0 },
+    { emoji: '🐺', q: 'Как называют волка-помощника в новогодних сказках?',
+      answers: ['Серый волк', 'Снежный волк', 'Полярный волк', 'Белый волк'], correct: 0 },
+    { emoji: '🍭', q: 'Какой мультфильм про Щелкунчика и Мышиного короля?',
+      answers: ['«Щелкунчик» (Барби)', '«Холодное сердце»', '«Моана»', '«Рапунцель»'], correct: 0 }
+  ],
+
+  'Настя': [
+    { emoji: '❄️', q: 'Кого из «Холодного сердца» зовут Эльза?',
+      answers: ['Снежная королева с магией льда', 'Принцесса огня', 'Фея воды', 'Королева весны'], correct: 0 },
+    { emoji: '👭', q: 'Как зовут сестру Эльзы в «Холодном сердце»?',
+      answers: ['Анна', 'Моана', 'Белль', 'Аврора'], correct: 0 },
+    { emoji: '☃️', q: 'Как зовут снеговика в «Холодном сердце»?',
+      answers: ['Олаф', 'Снежок', 'Кристоф', 'Свен'], correct: 0 },
+    { emoji: '🐭', q: 'Как зовут мышонка из «Тома и Джерри», который любит сыр?',
+      answers: ['Джерри', 'Таффи', 'Спайк', 'Батч'], correct: 0 },
+    { emoji: '🐻', q: 'Кто в мультфильме «Маша и Медведь» обожает варенье?',
+      answers: ['Маша', 'Медведь', 'Волк', 'Заяц'], correct: 1 },
+    { emoji: '🎅', q: 'Что дарит Санта-Клаус непослушным детям по традиции?',
+      answers: ['Уголёк', 'Конфету', 'Игрушку', 'Ничего'], correct: 0 },
+    { emoji: '🐉', q: 'Какой мультфильм про дракона и Новый год?',
+      answers: ['«Как приручить дракона»', '«Мулан»', '«Моана»', '«Храбрая сердцем»'], correct: 0 },
+    { emoji: '🌟', q: 'Кто помогал Золушке попасть на бал?',
+      answers: ['Фея-крёстная', 'Снегурочка', 'Дед Мороз', 'Кролик'], correct: 0 },
+    { emoji: '🎠', q: 'Как зовут мишку, который живёт в Простоквашино?',
+      answers: ['Матроскин', 'Шарик', 'Мишка', 'Печкин'], correct: 2 },
+    { emoji: '🧸', q: 'В «Истории игрушек» какие игрушки оживают?',
+      answers: ['Все, когда людей нет', 'Только Вуди', 'Только Базз', 'Только ночью'], correct: 0 }
+  ],
+
+  'Руслан': [
+    { emoji: '🎖️', q: 'Какое событие произошло 7 декабря 1941 года?',
+      answers: ['Начало Сталинградской битвы', 'Нападение на Перл-Харбор', 'Курская битва', 'Открытие второго фронта'], correct: 1 },
+    { emoji: '❄️', q: 'Какая битва стала переломным моментом и проходила в зимних условиях 1942–1943?',
+      answers: ['Сталинградская', 'Московская', 'Курская', 'Берлинская'], correct: 0 },
+    { emoji: '🎄', q: 'Что происходило 25 декабря 1991 года?',
+      answers: ['Распад СССР', 'Начало ВОВ', 'Победа', 'Парад Победы'], correct: 0 },
+    { emoji: '⛄', q: 'Как называлась операция по контрнаступлению под Москвой в декабре 1941?',
+      answers: ['«Уран»', '«Тайфун»', '«Цитадель»', '«Багратион»'], correct: 1 },
+    { emoji: '🎖️', q: 'Сколько дней длилась блокада Ленинграда?',
+      answers: ['500', '872', '1000', '700'], correct: 1 },
+    { emoji: '🛷', q: 'Что помогало снабжать блокадный Ленинград зимой?',
+      answers: ['Дорога жизни по Ладоге', 'Метро', 'Трамваи', 'Авиация'], correct: 0 },
+    { emoji: '🌟', q: 'Кто командовал Парадом Победы 24 июня 1945 года?',
+      answers: ['Жуков', 'Рокоссовский', 'Сталин', 'Конев'], correct: 1 },
+    { emoji: '🎄', q: 'Какой подарок получали дети в блокадном Ленинграде на Новый год?',
+      answers: ['Игрушку', 'Мандарин', 'Кусочек хлеба и сахара', 'Книгу'], correct: 2 },
+    { emoji: '🎖️', q: 'В каком году закончилась Вторая мировая война?',
+      answers: ['1943', '1944', '1945', '1946'], correct: 2 },
+    { emoji: '❄️', q: 'Какая зимняя операция 1944 года полностью сняла блокаду Ленинграда?',
+      answers: ['«Январский гром»', '«Искра»', '«Багратион»', '«Уран»'], correct: 0 }
+  ],
+
+  'Юля': [
+    { emoji: '🔔', q: 'В какой стране придумали традицию целоваться под омелой?',
+      answers: ['В Англии', 'В Италии', 'В Германии', 'Во Франции'], correct: 0 },
+    { emoji: '🇮🇹', q: 'Что выбрасывают итальянцы из окон на Новый год?',
+      answers: ['Старую мебель', 'Монеты', 'Цветы', 'Фрукты'], correct: 0 },
+    { emoji: '🇪🇸', q: 'Сколько виноградин съедают в Испании под бой курантов?',
+      answers: ['10', '12', '24', '1'], correct: 1 },
+    { emoji: '🇯🇵', q: 'Сколько раз звонят в колокол в Японии в новогоднюю ночь?',
+      answers: ['100', '108', '50', '12'], correct: 1 },
+    { emoji: '🇩🇰', q: 'Что делает датская традиция с тарелками на Новый год?',
+      answers: ['Бьют о двери друзей', 'Вешают на ёлку', 'Дарят', 'Моют'], correct: 0 },
+    { emoji: '🇩🇪', q: 'Что прячут в рождественском пироге в Германии?',
+      answers: ['Монетку', 'Игрушку', 'Записку', 'Орех'], correct: 0 },
+    { emoji: '🇸🇪', q: 'Из какого материала делают шведского козла Юла?',
+      answers: ['Из соломы', 'Из дерева', 'Из металла', 'Из ткани'], correct: 0 },
+    { emoji: '🇬🇷', q: 'Что разбивают греки на Новый год?',
+      answers: ['Тарелку', 'Гранат', 'Стакан', 'Вазу'], correct: 1 },
+    { emoji: '🇫🇮', q: 'Что гадают финны на Новый год с помощью олова?',
+      answers: ['Погоду', 'Будущее', 'Имя суженого', 'Число'], correct: 1 },
+    { emoji: '🌍', q: 'В какой стране Новый год встречают первым в мире?',
+      answers: ['В Новой Зеландии (острова Лайн)', 'В Японии', 'В Австралии', 'В России'], correct: 0 }
+  ],
+
+  'Андрей': [
+    { emoji: '🎣', q: 'Что такое «первый лёд» для рыбака?',
+      answers: ['Первый улов', 'Долгожданный момент, когда водоём покрывается льдом и можно выйти на зимнюю рыбалку', 'Первая наживка', 'Первый день зимы'],
+      correct: 1 },
+    { emoji: '❄️', q: 'Как называется традиционная зимняя рыбалка на льду?',
+      answers: ['Подлёдный лов', 'Ледовый сёрфинг', 'Сноу-фишинг', 'Ледокол'],
+      correct: 0 },
+    { emoji: '🐟', q: 'Какая рыба в русских сказках исполняет желания?',
+      answers: ['Карась', 'Щука', 'Золотая рыбка', 'Окунь'],
+      correct: 2 },
+    { emoji: '🎄', q: 'Какое блюдо из сельди традиционно украшает новогодний стол в России?',
+      answers: ['Осетрина', 'Сельдь под шубой', 'Уха', 'Килька в томате'],
+      correct: 1 },
+    { emoji: '🕳️', q: 'Как называется лунка, которую бурят рыбаки зимой?',
+      answers: ['Прорубь', 'Мойка', 'Лунка', 'Пробоина'],
+      correct: 2 },
+    { emoji: '🥶', q: 'Что обязательно берут с собой рыбаки на зимнюю рыбалку для тепла?',
+      answers: ['Термос с горячим чаем', 'Мороженое', 'Веер', 'Холодильник'],
+      correct: 0 },
+    { emoji: '🐠', q: 'Какая рыба считается символом Нового года в Китае?',
+      answers: ['Карп', 'Акула', 'Сом', 'Меч-рыба'],
+      correct: 0 },
+    { emoji: '🧊', q: 'Почему рыба зимой подо льдом не замерзает?',
+      answers: ['Она впадает в спячку и не двигается', 'Вода подо льдом имеет температуру около +4 °C', 'У неё шуба из чешуи', 'Она улетает на юг'],
+      correct: 1 },
+    { emoji: '🎁', q: 'Что, по приметам рыбаков, обязательно нужно взять на зимнюю рыбалку для удачи?',
+      answers: ['Термос и доброе слово товарища', 'Пять удочек', 'Красный флажок', 'Бубен'],
+      correct: 0 },
+    { emoji: '🐡', q: 'Какая поговорка лучше всего описывает труд рыбака?',
+      answers: ['«Рыбак рыбака видит издалека»', '«Без труда не выловишь и рыбку из пруда»', '«Кто рано встаёт, тому Бог подаёт»', '«На безрыбье и рак рыба»'],
+      correct: 1 }
+  ]
+};
+
+/* =========================================================
+   БОНУСНЫЙ ВОПРОС
+   ========================================================= */
+
+const BONUS_QUESTION = {
+  emoji: '🎁',
+  q: 'Где, по легенде, Санта-Клаус прячет подарки для самых внимательных?',
+  answers: ['Под ёлкой', 'В носке у камина', 'Под подушкой', 'В холодильнике'],
+  correct: 1,
+  reward: '💫 +1 бонусное очко!'
+};
+
+const BONUS_RECIPIENTS = ['Оля', 'Оксана', 'Кристина', 'Тамара', 'Вика', 'Настя', 'Руслан', 'Юля', 'Андрей'];
+const BONUS_QUESTION_INDEX = 4;
+
+/* =========================================================
+   СОСТОЯНИЕ
+   ========================================================= */
+
+const state = {
+  currentPlayer: null,
+  currentQ: 0,
+  score: 0,
+  bonusUsed: false,
+  results: {} // заполнится через загрузку с сервера
+};
+
+/* =========================================================
+   РАБОТА С СЕРВЕРОМ (Netlify Blobs через /api/results)
+   ========================================================= */
+
+async function loadResults() {
+  try {
+    const res = await fetch('/api/results', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch (e) {
+    console.error('Не удалось загрузить результаты:', e);
+    return {};
+  }
+}
+
+async function saveResult(player, score) {
+  try {
+    const res = await fetch('/api/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player, score })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    // если сервер вернул актуальное состояние — синхронизируем
+    if (data && data.scores) state.results = data.scores;
+  } catch (e) {
+    console.error('Не удалось сохранить результат:', e);
+    showToast('⚠️ Не удалось сохранить результат на сервере');
+  }
+}
+
+function totalScore() {
+  return Object.values(state.results).reduce((s, v) => s + v, 0);
+}
+
+/* =========================================================
+   ЛЕС
+   ========================================================= */
+
+function createForest() {
+  const forest = document.getElementById('forest');
+
+  const bottomCount = 35;
+  for (let i = 0; i < bottomCount; i++) {
+    const tree = document.createElement('div');
+    tree.className = 'bg-tree bottom-tree';
+    tree.textContent = Math.random() < 0.5 ? '🎄' : '🌲';
+    tree.style.left = (i / bottomCount) * 100 + (Math.random() * 3 - 1.5) + '%';
+    tree.style.fontSize = (30 + Math.random() * 55) + 'px';
+    tree.style.opacity = 0.18 + Math.random() * 0.3;
+    tree.style.bottom = (-15 + Math.random() * 15) + 'px';
+    tree.style.animationDelay = (Math.random() * 3) + 's';
+    forest.appendChild(tree);
+  }
+
+  const scatteredCount = 20;
+  for (let i = 0; i < scatteredCount; i++) {
+    const tree = document.createElement('div');
+    tree.className = 'bg-tree scattered-tree';
+    tree.textContent = Math.random() < 0.7 ? '🌲' : '🎄';
+    tree.style.left = Math.random() * 100 + '%';
+    tree.style.top = (Math.random() * 85) + '%';
+    tree.style.fontSize = (40 + Math.random() * 70) + 'px';
+    tree.style.opacity = 0.05 + Math.random() * 0.12;
+    tree.style.animationDelay = Math.random() * 6 + 's';
+    tree.style.animationDuration = (8 + Math.random() * 6) + 's';
+    forest.appendChild(tree);
+  }
+}
+
+/* =========================================================
+   СНЕГ
+   ========================================================= */
+
+function createSnow() {
+  const container = document.getElementById('snow');
+  const symbols = ['❄', '❅', '❆', '•', '*'];
+  const count = 200;
+
+  for (let i = 0; i < count; i++) {
+    const flake = document.createElement('div');
+    flake.className = 'snowflake';
+
+    const isFar = Math.random() < 0.15;
+    if (isFar) flake.classList.add('blurred');
+
+    flake.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    flake.style.left = Math.random() * 100 + '%';
+    flake.style.fontSize = isFar
+      ? (18 + Math.random() * 22) + 'px'
+      : (5 + Math.random() * 16) + 'px';
+    flake.style.animationDuration = (6 + Math.random() * 16) + 's';
+    flake.style.animationDelay = '-' + (Math.random() * 25) + 's';
+    flake.style.opacity = isFar
+      ? 0.15 + Math.random() * 0.25
+      : 0.3 + Math.random() * 0.7;
+    container.appendChild(flake);
+  }
+}
+
+/* =========================================================
+   ТОСТ
+   ========================================================= */
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* =========================================================
+   ЭКРАНЫ
+   ========================================================= */
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* =========================================================
+   ЭКРАН ВХОДА
+   ========================================================= */
+
+function renderPlayersGrid() {
+  const container = document.getElementById('players-container');
+  container.innerHTML = '';
+
+  const grid = document.createElement('div');
+  grid.className = 'players';
+  grid.id = 'players-grid';
+  container.appendChild(grid);
+
+  Object.keys(PLAYERS).forEach(name => {
+    const p = PLAYERS[name];
+    const score = state.results[name];
+    const locked = score !== undefined;
+
+    const btn = document.createElement('button');
+    btn.className = 'player-btn' + (locked ? ' locked' : '');
+    btn.innerHTML = `
+      <span class="emoji">${p.emoji}</span>
+      ${name}
+      <span class="played">${locked ? `🔒 ${score} из 10` : 'готов(а) играть'}</span>
+    `;
+
+    btn.addEventListener('click', () => {
+      if (locked) {
+        showToast(`🔒 ${name}, у вас уже была попытка. Результат: ${score} из 10.`);
+        return;
+      }
+      pendingPlayer = name;
+      document.getElementById('modal-title').textContent = `Пароль для ${name}`;
+      document.getElementById('password-input').value = '';
+      document.getElementById('password-error').textContent = '';
+      document.getElementById('modal-password').classList.add('open');
+      setTimeout(() => document.getElementById('password-input').focus(), 80);
+    });
+
+    grid.appendChild(btn);
+  });
+
+  const played = Object.keys(PLAYERS).filter(n => state.results[n] !== undefined);
+  document.getElementById('btn-go-final').style.display = played.length ? 'inline-block' : 'none';
+
+  updateCounter();
+}
+
+function updateCounter() {
+  const t = totalScore();
+  document.getElementById('total-score').textContent = t;
+  const pct = Math.min(100, (t / TARGET_SCORE) * 100);
+  document.getElementById('total-bar').style.width = pct + '%';
+  const hint = document.getElementById('counter-hint');
+  if (t >= TARGET_SCORE) {
+    hint.textContent = '🎉 Поздравление открыто! Загляните в «Итоги»!';
+    hint.style.color = '#ffd76e';
+  } else {
+    hint.textContent = `До общего поздравления осталось ${TARGET_SCORE - t} очков 🎅`;
+    hint.style.color = '#a9c5e3';
+  }
+}
+
+/* =========================================================
+   МОДАЛКА ПАРОЛЯ
+   ========================================================= */
+
+let pendingPlayer = null;
+
+function closeModal() {
+  document.getElementById('modal-password').classList.remove('open');
+  pendingPlayer = null;
+}
+
+function tryLogin() {
+  const name = pendingPlayer;
+  const pwd = document.getElementById('password-input').value.trim();
+  if (!name) return;
+
+  if (state.results[name] !== undefined) {
+    closeModal();
+    showToast(`🔒 ${name}, у вас уже была попытка.`);
+    return;
+  }
+
+  if (PLAYERS[name].password === pwd) {
+    closeModal();
+    startQuiz(name);
+  } else {
+    document.getElementById('password-error').textContent = 'Неверный пароль 🤔';
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').focus();
+  }
+}
+
+document.getElementById('btn-ok').addEventListener('click', tryLogin);
+document.getElementById('btn-cancel').addEventListener('click', closeModal);
+document.getElementById('password-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') tryLogin();
+});
+document.getElementById('modal-password').addEventListener('click', e => {
+  if (e.target.id === 'modal-password') closeModal();
+});
+
+/* =========================================================
+   ВИКТОРИНА
+   ========================================================= */
+
+function startQuiz(playerName) {
+  state.currentPlayer = playerName;
+  state.currentQ = 0;
+  state.score = 0;
+  state.bonusUsed = false;
+  document.getElementById('quiz-player').textContent = playerName;
+  document.getElementById('quiz-score').textContent = '0';
+  showView('view-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.currentPlayer][state.currentQ];
+  const total = QUESTIONS[state.currentPlayer].length;
+
+  document.getElementById('quiz-progress-text').textContent =
+    `Вопрос ${state.currentQ + 1} из ${total}`;
+  document.getElementById('progress-fill').style.width =
+    ((state.currentQ / total) * 100) + '%';
+
+  document.getElementById('question-emoji').textContent = q.emoji;
+  document.getElementById('question-text').textContent  = q.q;
+
+  const giftWrapper = document.getElementById('bonus-wrapper');
+  const shouldShowGift =
+    BONUS_RECIPIENTS.includes(state.currentPlayer) &&
+    state.currentQ === BONUS_QUESTION_INDEX &&
+    !state.bonusUsed;
+  giftWrapper.style.display = shouldShowGift ? 'flex' : 'none';
+
+  const answersEl = document.getElementById('answers');
+  answersEl.innerHTML = '';
+  q.answers.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = text;
+    btn.addEventListener('click', () => answerQuestion(i));
+    answersEl.appendChild(btn);
+  });
+}
+
+function answerQuestion(chosenIndex) {
+  const q = QUESTIONS[state.currentPlayer][state.currentQ];
+  const buttons = document.querySelectorAll('#answers .answer-btn');
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosenIndex) btn.classList.add('wrong');
+  });
+
+  if (chosenIndex === q.correct) {
+    state.score++;
+    document.getElementById('quiz-score').textContent = state.score;
+  }
+
+  setTimeout(() => {
+    state.currentQ++;
+    const total = QUESTIONS[state.currentPlayer].length;
+    if (state.currentQ >= total) finishQuiz();
+    else renderQuestion();
+  }, 1300);
+}
+
+/* =========================================================
+   БОНУС
+   ========================================================= */
+
+document.getElementById('bonus-gift').addEventListener('click', () => {
+  if (state.bonusUsed) return;
+  document.getElementById('bonus-question-text').textContent = BONUS_QUESTION.q;
+  document.getElementById('bonus-error').textContent = '';
+  const answersEl = document.getElementById('bonus-answers');
+  answersEl.innerHTML = '';
+  BONUS_QUESTION.answers.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = text;
+    btn.addEventListener('click', () => answerBonus(i));
+    answersEl.appendChild(btn);
+  });
+  document.getElementById('modal-bonus').classList.add('open');
+});
+
+function answerBonus(chosenIndex) {
+  const buttons = document.querySelectorAll('#bonus-answers .answer-btn');
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === BONUS_QUESTION.correct) btn.classList.add('correct');
+    else if (i === chosenIndex) btn.classList.add('wrong');
+  });
+
+  if (chosenIndex === BONUS_QUESTION.correct) {
+    state.score++;
+    state.bonusUsed = true;
+    document.getElementById('quiz-score').textContent = state.score;
+    document.getElementById('bonus-error').textContent = BONUS_QUESTION.reward;
+    document.getElementById('bonus-error').style.color = '#ffd76e';
+  } else {
+    state.bonusUsed = true;
+    document.getElementById('bonus-error').textContent = 'Эх, не угадал(а)! В другой раз повезёт.';
+    document.getElementById('bonus-error').style.color = '#ff8a80';
+  }
+
+  setTimeout(() => {
+    document.getElementById('modal-bonus').classList.remove('open');
+  }, 1500);
+}
+
+/* =========================================================
+   РЕЗУЛЬТАТ
+   ========================================================= */
+
+function finishQuiz() {
+  const name = state.currentPlayer;
+  const score = state.score;
+  const total = QUESTIONS[name].length;
+
+  // сохраняем локально сразу — чтобы UI отреагировал мгновенно
+  state.results[name] = score;
+
+  // и отправляем на сервер (в фоне)
+  saveResult(name, score);
+
+  const key =
+    score === total + 1 ? 'perfect' :
+    score >= total - 1  ? 'perfect' :
+    score >= total - 3  ? 'great'   :
+    score >= total - 5  ? 'good'    :
+    score >= total - 7  ? 'ok'      : 'bad';
+
+  const messages = {
+    perfect: { emoji: '🏆', title: 'Идеально!',
+      text: '🎅 Ты — настоящий Дед Мороз этой темы! Знаешь всё, что нужно!' },
+    great:   { emoji: '🥇', title: 'Отлично!',
+      text: '🎄 Ёлка тобой гордится! Почти всё знаешь — золотая медаль!' },
+    good:    { emoji: '🥈', title: 'Хорошо!',
+      text: '⭐ Продолжай в том же духе — ты на верном пути к званию Снегурочки!' },
+    ok:      { emoji: '🥉', title: 'Неплохо!',
+      text: '🍊 Мандаринов маловато съел(а)! В следующем году — реванш!' },
+    bad:     { emoji: '🎁', title: 'Молодец!',
+      text: '🎉 Главное — атмосфера, подарки и мандарины! Зато ты классно играешь!' }
+  };
+  const msg = messages[key];
+
+  document.getElementById('result-emoji').textContent     = msg.emoji;
+  document.getElementById('result-title').textContent     = `${msg.title} ${name}!`;
+  document.getElementById('result-score-val').textContent = score;
+  document.getElementById('result-score-max').textContent = total;
+  document.getElementById('result-message').innerHTML     = msg.text;
+
+  showView('view-result');
+}
+
+document.getElementById('btn-other').addEventListener('click', () => {
+  state.currentPlayer = null;
+  renderPlayersGrid();
+  showView('view-login');
+});
+
+/* =========================================================
+   ФИНАЛЬНЫЙ ЭКРАН
+   ========================================================= */
+
+function renderFinal() {
+  const names = Object.keys(PLAYERS);
+  const rows = names
+    .map(n => ({ name: n, score: state.results[n] ?? -1 }))
+    .sort((a, b) => b.score - a.score);
+
+  const medals = ['🥇', '🥈', '🥉'];
+  const html = rows.map((p, i) => {
+    const emoji = PLAYERS[p.name].emoji;
+    const sc = p.score >= 0 ? `${p.score} из 10` : 'не играл(а)';
+    const winnerClass = (i === 0 && p.score >= 0) ? ' winner' : '';
+    const medal = p.score >= 0 ? (i < 3 ? medals[i] : `${i + 1}.`) : '—';
+    const crown = (i === 0 && p.score >= 0) ? '<span class="crown">👑</span>' : '';
+    return `
+      <div class="final-row${winnerClass}">
+        <span class="medal">${medal}</span>
+        <span class="name">${emoji} ${p.name}</span>
+        <span class="score">${sc}</span>
+        ${crown}
+      </div>`;
+  }).join('');
+
+  document.getElementById('final-results').innerHTML = html;
+
+  const t = totalScore();
+  document.getElementById('final-total').textContent = t;
+  document.getElementById('final-bar').style.width =
+    Math.min(100, (t / TARGET_SCORE) * 100) + '%';
+
+  const hintEl = document.getElementById('final-hint');
+  if (t >= TARGET_SCORE) {
+    hintEl.textContent = '🎉 Поздравление открыто!';
+    hintEl.style.color = '#ffd76e';
+    document.getElementById('final-congrats').style.display = 'block';
+    document.getElementById('final-locked').style.display   = 'none';
+  } else {
+    hintEl.textContent = `До общего поздравления осталось ${TARGET_SCORE - t} очков 🎅`;
+    hintEl.style.color = '#a9c5e3';
+    document.getElementById('final-congrats').style.display = 'none';
+    document.getElementById('final-locked').style.display   = 'block';
+  }
+}
+
+document.getElementById('btn-go-final').addEventListener('click', () => {
+  renderFinal();
+  showView('view-final');
+});
+
+document.getElementById('btn-back-to-login').addEventListener('click', () => {
+  renderPlayersGrid();
+  showView('view-login');
+});
+
+/* =========================================================
+   СТАРТ (асинхронный — сначала загружаем результаты)
+   ========================================================= */
+
+(async () => {
+  createForest();
+  createSnow();
+
+  state.results = await loadResults();
+  renderPlayersGrid();
+})();
+</script>
+</body>
+</html>
